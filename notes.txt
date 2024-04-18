@@ -1,0 +1,8 @@
+connect-ensure-login is a package that functions similar to auth route guard
+
+mongoose(ODM) is the one responsible for helping us write queries without much boilerplate a sort of ORM that 
+maps to especially mongodb
+
+Note Session data is not saved in the cookie itself, just the session ID. Session data is stored server-side
+
+Middleware : modifies something in our application.
