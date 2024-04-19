@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 // passport allows the application to maintain a session with the already authenticated users(an authorization mechanism)
 const passport = require('passport');
 const session = require('express-session');
-const localStrategy = require('passport-local').Strategy
+const LocalStrategy = require('passport-local').Strategy
 var crypto = require("crypto");
 const MongoStore = require("connect-mongo")(session);
 require('dotenv').config();
@@ -16,25 +16,11 @@ const UserSchema = new mongoose.Schema({
     username: String,
     hash: String,
     salt: String
-})
-
-mongoose.model("User", UserSchema);
-const sessionStore = new MongoStore({
-    mongooseConnection: connection,
-    collection: "sessions"
 });
 
-app.use(
-    session({
-        secret: process.env.SECRET,
-        resave: false,
-        saveUninitialized: true,
-        store: sessionStore
-    })
-)
+const User = connection.model("User", UserSchema);
 
 //we will write functions pertaining to passport 
-
 
 passport.use(
     new LocalStrategy(function (username, password, cb) {
@@ -58,13 +44,16 @@ passport.use(
 );
 
 
+/**
+ *  these two functions are responsible for "serializing" and "deserializing" users to and from the current session object.
+ */
 passport.serializeUser(function (user, cb) {
     cb(null, user.id);
 });
 
 passport.deserializeUser(function (id, cb) {
-    User.findByUserId(id, function(err, user){
-        if(err){
+    User.findById(id, function (err, user) {
+        if (err) {
             return cb(err);
         }
 
@@ -72,10 +61,113 @@ passport.deserializeUser(function (id, cb) {
     });
 });
 
+const sessionStore = new MongoStore({
+    mongooseConnection: connection,
+    collection: "sessions"
+});
+
+app.use(
+    session({
+        secret: process.env.SECRET,
+        resave: false,
+        saveUninitialized: true,
+        store: sessionStore,
+        cookie: {
+            maxAge: 1000 * 30,
+        },
+    })
+);
 //to import the secondary authentication library 
-app.use(express.urlencoded({ extended: false }))
-app.use(passport.initialize())
-app.use(passport.session())
+app.use(express.urlencoded({ extended: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+/**
+ * APP ROUTES
+ */
+
+app.get("/", (req, res, next) => {
+    res.send("<h2>HOME</h2>");
+});
+
+app.get("/login", (req, res, next) => {
+    const form = '<h1>Login Page</h1><form method="POST" action="/login">\
+    Enter Username:<br><input type="text" name="username">\
+    <br>Enter Password:<br><input type="password" name="password">\
+    <br><br><input type="submit" value="Submit"></form>'
+    res.send(form);
+});
+
+app.post(
+    "/login",
+    passport.authenticate("local", {
+        failureRedirect: "/login-failure",
+        successRedirect: "login-success",
+    }),
+    (err, req, res, next) => {
+        if (err) next(err);
+    }
+);
+
+app.get("/register", (req, res, next) => {
+    const form = '<h1>Register Page</h1><form method="post" action="register">\
+    Enter Username:<br><input type="text" name="username">\
+    <br>Enter Password:<br><input type="password" name="password">\
+    <br><br><input type="submit" value="Submit"></form>';
+
+    res.send(form);
+});
+
+app.post("/register", (req, res, next) => {
+    const saltedHash = generateHashedPassword(req.body.password);
+
+    const salt = saltedHash.salt;
+    const hash = saltedHash.hash;
+
+    const newUser = new User({
+        username: req.body.username,
+        hash: hash,
+        salt: salt,
+    });
+
+    newUser.save().then((user) => {
+        // console.log(user);
+    });
+
+    res.redirect("/login");
+});
+
+app.get("/protected-route", (req, res, next) => {
+    if (req.isAuthenticated()) {
+        res.send("<h1> You are authenticated </h1>");
+    } else {
+        res.send("<img src='https://indianmemetemplates.com/wp-content/uploads/chabi-kaha-hai-1024x576.jpg'>")
+    }
+});
+
+app.get("/logout", (req, res, next) => {
+    req.logout((err) => {
+        if (err) { return next(err) }
+        res.redirect("/login");
+    });
+});
+
+app.get("/login-success", (req, res, next) => {
+    res.send("You successfully logged in.");
+});
+
+app.get("/login-failure", (req, res, next) => {
+    res.send("You entered the wrong password.");
+});
+/**
+ * -------------- SERVER ----------------
+ */
+
+// Server listens on http://localhost:3000
+app.listen(3000, () => {
+    console.log("Listening to port 3000");
+});
+
 
 /**
  *
@@ -88,7 +180,6 @@ app.use(passport.session())
  */
 function validPassword(password, hash, salt) {
     var hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, "sha512").toString("hex");
-
     return hash === hashVerify;
 }
 
