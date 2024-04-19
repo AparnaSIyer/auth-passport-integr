@@ -17,7 +17,7 @@ const crypto = require("crypto");
 function validPassword(password, hash, salt) {
     var generatedHash = generateHash(password, salt,);
 
-    return hash == generatedHash;
+    return hash === generatedHash;
 }
 
 /**
@@ -33,7 +33,12 @@ function validPassword(password, hash, salt) {
 
 function generatePassword(password) {
     var salt = crypto.randomBytes(32).toString("hex");
-    var generatedHash = generateHash(password, salt)
+    var generatedHash = generateHash(password, salt);
+
+    return {
+        salt: salt,
+        hash: generatedHash
+    }
 }
 
 function generateHash(password, salt) {
