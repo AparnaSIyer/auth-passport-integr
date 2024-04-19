@@ -6,3 +6,9 @@ maps to especially mongodb
 Note Session data is not saved in the cookie itself, just the session ID. Session data is stored server-side
 
 Middleware : modifies something in our application.
+
+// Now since for this method we have to make a database call each a time a user logs in 
+to verify his/her password instead we will be using jwt to counter these db calls each time
+
+JWT contains following
+Header, payload, signature

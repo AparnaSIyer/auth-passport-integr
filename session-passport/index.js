@@ -164,8 +164,8 @@ app.get("/login-failure", (req, res, next) => {
  */
 
 // Server listens on http://localhost:3000
-app.listen(3000, () => {
-    console.log("Listening to port 3000");
+app.listen(process.env.PORT_SESSION, () => {
+    console.log("Listening to port " + process.env.PORT_SESSION);
 });
 
 
