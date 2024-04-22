@@ -6,6 +6,8 @@ require("dotenv").config();
 // Create the Express application
 var app = express();
 
+require("./config/database");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
