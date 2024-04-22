@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const passport = require("passport");
+require('./config/passport')(passport)
 require("dotenv").config();
 
 // Create the Express application
@@ -10,7 +12,7 @@ require("./config/database");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(passport.initialize());
 // Allows our Angular application to make HTTP requests to Express application
 app.use(cors());
 

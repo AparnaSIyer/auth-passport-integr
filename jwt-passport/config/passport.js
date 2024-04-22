@@ -2,7 +2,7 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const fs = require("fs");
 const path = require("path");
-const User = require("mongoose").model("User");
+const User = require('../models/user');
 
 //Passport comes in, this file allows in the verification of the user in our database
 

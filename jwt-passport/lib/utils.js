@@ -54,7 +54,7 @@ const PRIVATE_KEY = fs.readFileSync(pathToPrivateKey, "utf-8");
 
 function signJWT(user) {
     const _id = user._id;
-
+    
     const expirationTime = "1d";
 
     const payload = {
@@ -73,6 +73,4 @@ function signJWT(user) {
     }
 }
 
-module.exports.validPassword = validPassword;
-module.exports.generatePassword = generatePassword;
-module.exports.signJWT = signJWT;
+module.exports = {validPassword, generatePassword, signJWT};
