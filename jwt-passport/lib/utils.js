@@ -1,5 +1,7 @@
 const crypto = require("crypto");
-
+const jsonwebtoken = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 /**
  * HELPER FUNCTIONS
  */
@@ -47,5 +49,30 @@ function generateHash(password, salt) {
     return hashVerify;
 }
 
+const pathToPrivateKey = path.join(__dirname, "..", "test_key.pem");
+const PRIVATE_KEY = fs.readFileSync(pathToPrivateKey, "utf-8");
+
+function signJWT(user) {
+    const _id = user._id;
+
+    const expirationTime = "1d";
+
+    const payload = {
+        sub: _id,
+        iat: Date.now()
+    }
+
+    const signedJWToken = jsonwebtoken.sign(payload, PRIVATE_KEY, {
+        expiresIn: expirationTime,
+        algorithm: "RS256"
+    });
+
+    return {
+        token: `Bearer ${signedJWToken}`,
+        expiresIn: expirationTime
+    }
+}
+
 module.exports.validPassword = validPassword;
 module.exports.generatePassword = generatePassword;
+module.exports.signJWT = signJWT;
