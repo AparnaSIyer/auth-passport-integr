@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start_session": "nodemon session-passport/index.js",
-    "start_jwt": "nodemon jwt-passport/app.js",
+    "start_jwt": "nodemon passport/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -29,8 +29,10 @@
     "express-session": "^1.18.0",
     "mongoose": "^6.12.7",
     "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "passport-microsoft": "^2.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
